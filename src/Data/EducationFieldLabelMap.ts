@@ -1,0 +1,31 @@
+// src/Data/EducationFieldLabelMap.ts
+
+export const educationFieldLabelMap: Record<string, string> = {
+  noOfClassroomsPlanned: "No. of Classrooms Planned",
+  noOfClassroomsConstructed: "No. of Classrooms Constructed",
+  noOfGirlsStudentsBenefited: "No. of Girls Students Benefited",
+  noOfBoysStudentsBenefited: "No. of Boys Students Benefited",
+  noOfGirlsToiletsPlanned: "No. of Girls Toilets Planned",
+  noOfGirlsToiletsConstructed: "No. of Girls Toilets Constructed",
+  noOfBoyToiletsPlanned: "No. of Boys Toilets Planned",
+  noOfBoyToiletsConstructed: "No. of Boys Toilets Constructed",
+  noOfBoyStudentsBenefited: "No. of Boys Students Benefited",
+  noOfGirlStudentsBenefited: "No. of Girls Students Benefited",
+  noOfUnitsPlanned: "No. of Units Planned",
+  noOfUnitsExecuted: "No. of Units Executed",
+  lengthMeters: "Length (Meters)",
+  workDescription: "Work Description",
+  baselineData: "Baseline Data (%)",
+  outcome: "Outcome (%)",
+  noOfDeskBenchesPlanned: "No. of Desk Benches Planned",
+  noOfDeskBenchesProvided: "No. of Desk Benches Provided",
+  noOfPlaygroundsPlanned: "No. of Playgrounds Planned",
+  noOfPlaygroundsDeveloped: "No. of Playgrounds Developed",
+  noOfSchoolsCovered: "No. of Schools Covered",
+  noOfUtthanSahayaksDeployed: "No. of Utthan Sahayaks Deployed",
+  noOfUnits: "No. of Units",
+  noOfResourcePersonDeployed: "No. of Resource Persons Deployed",
+  noOfMaleYouthCovered: "No. of Male Youth Covered",
+  noOfFemaleYouthCovered: "No. of Female Youth Covered",
+  totalCandidateSelected: "Total Candidates Selected"
+};
