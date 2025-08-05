@@ -1,4 +1,3 @@
-// src/Components/Charts.tsx
 import React from "react";
 import {
   BarChart,
@@ -93,67 +92,72 @@ const Charts: React.FC<ChartsProps> = ({
   const completion = totalPlanned ? Math.round((totalExecuted / totalPlanned) * 100) : 0;
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 px-4 mt-8">
-      {/* Bar Chart */}
-      <div className="bg-white rounded-lg shadow p-4">
-        <h2 className="text-sm font-semibold text-[#6B1E82] mb-2">
-          Planned vs Executed (Bar)
-        </h2>
-        <ResponsiveContainer width="100%" height={240}>
-          <BarChart data={chartData}>
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
-            <Bar dataKey="Planned" fill="#6B1E82" />
-            <Bar dataKey="Executed" fill="#E6518B" />
-          </BarChart>
-        </ResponsiveContainer>
+    <div className="space-y-6 px-4 mt-8">
+      {/* Row 1: Bar and Pie Side-by-Side */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Bar Chart */}
+        <div className="bg-white rounded-lg shadow p-4">
+          <h2 className="text-sm font-semibold text-[#6B1E82] mb-2">
+            Planned vs Executed (Bar)
+          </h2>
+          <ResponsiveContainer width="100%" height={240}>
+            <BarChart data={chartData}>
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="Planned" fill="#6B1E82" />
+              <Bar dataKey="Executed" fill="#E6518B" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Pie Chart */}
+        <div className="bg-white rounded-lg shadow p-4">
+          <h2 className="text-sm font-semibold text-[#6B1E82] mb-2">
+            Gender-wise Beneficiaries (Pie)
+          </h2>
+          <ResponsiveContainer width="100%" height={240}>
+            <PieChart>
+              <Pie
+                data={genderData}
+                dataKey="value"
+                nameKey="name"
+                outerRadius={80}
+                label
+              >
+                {genderData.map((_, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index]} />
+                ))}
+              </Pie>
+              <Tooltip />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
       </div>
 
-      {/* Pie Chart */}
-      <div className="bg-white rounded-lg shadow p-4">
-        <h2 className="text-sm font-semibold text-[#6B1E82] mb-2">
-          Gender-wise Beneficiaries (Pie)
-        </h2>
-        <ResponsiveContainer width="100%" height={240}>
-          <PieChart>
-            <Pie
-              data={genderData}
-              dataKey="value"
-              nameKey="name"
-              outerRadius={80}
-              label
-            >
-              {genderData.map((_, index) => (
-                <Cell key={`cell-${index}`} fill={COLORS[index]} />
-              ))}
-            </Pie>
-            <Tooltip />
-          </PieChart>
-        </ResponsiveContainer>
-      </div>
-
-      {/* Gauge (Custom SVG style) */}
-      <div className="bg-white rounded-lg shadow p-4 flex flex-col items-center justify-center">
-        <h2 className="text-sm font-semibold text-[#6B1E82] mb-2">
-          Completion Gauge
-        </h2>
-        <svg width="160" height="100">
-          <circle cx="80" cy="80" r="70" fill="none" stroke="#eee" strokeWidth="14" />
-          <circle
-            cx="80"
-            cy="80"
-            r="70"
-            fill="none"
-            stroke="#6B1E82"
-            strokeWidth="14"
-            strokeDasharray={`${(completion / 100) * 440},440`}
-            transform="rotate(-90 80 80)"
-          />
-          <text x="80" y="85" textAnchor="middle" fontSize="22" fill="#6B1E82">
-            {completion}%
-          </text>
-        </svg>
+      {/* Row 2: Gauge Centered */}
+      <div className="flex justify-center">
+        <div className="bg-white rounded-lg shadow p-4 flex flex-col items-center justify-center w-[320px]">
+          <h2 className="text-sm font-semibold text-[#6B1E82] mb-2">
+            Completion Gauge
+          </h2>
+          <svg width="160" height="100">
+            <circle cx="80" cy="80" r="70" fill="none" stroke="#eee" strokeWidth="14" />
+            <circle
+              cx="80"
+              cy="80"
+              r="70"
+              fill="none"
+              stroke="#6B1E82"
+              strokeWidth="14"
+              strokeDasharray={`${(completion / 100) * 440},440`}
+              transform="rotate(-90 80 80)"
+            />
+            <text x="80" y="85" textAnchor="middle" fontSize="22" fill="#6B1E82">
+              {completion}%
+            </text>
+          </svg>
+        </div>
       </div>
     </div>
   );

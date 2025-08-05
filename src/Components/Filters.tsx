@@ -1,4 +1,3 @@
-// src/Components/Filters.tsx
 import React from "react";
 
 interface FiltersProps {
@@ -37,59 +36,74 @@ const Filters: React.FC<FiltersProps> = ({
     : [];
 
   return (
-    <div className="w-full flex flex-wrap items-center justify-start gap-4 bg-white px-4 py-3 rounded shadow mb-6">
-      <div>
-        <label className="block text-gray-700 text-sm font-semibold mb-1">Site</label>
-        <select
-          value={selectedSite}
-          onChange={(e) => setSelectedSite(e.target.value)}
-          className="border border-gray-300 rounded px-3 py-2 w-48"
-        >
-          <option value="">All</option>
-          {siteOptions.map((site, index) => (
-            <option key={index} value={site}>
-              {site}
-            </option>
-          ))}
-        </select>
-      </div>
+    <div className="w-full bg-white p-4 rounded-lg shadow-md mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
 
-      <div>
-        <label className="block text-gray-700 text-sm font-semibold mb-1">Activity</label>
-        <select
-          value={selectedActivity}
-          onChange={(e) => {
-            setSelectedActivity(e.target.value);
-            setSelectedSubActivity("");
-          }}
-          className="border border-gray-300 rounded px-3 py-2 w-64"
-        >
-          <option value="">All</option>
-          {activityOptions.map((activity, index) => (
-            <option key={index} value={activity}>
-              {activity}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {subActivityOptions.length > 0 && (
-        <div>
-          <label className="block text-gray-700 text-sm font-semibold mb-1">Sub-Activity</label>
+        {/* Site Filter */}
+        <div className="flex flex-col">
+          <label className="text-gray-700 text-sm font-semibold mb-1">Site</label>
           <select
-            value={selectedSubActivity}
-            onChange={(e) => setSelectedSubActivity(e.target.value)}
-            className="border border-gray-300 rounded px-3 py-2 w-64"
+            value={selectedSite}
+            onChange={(e) => setSelectedSite(e.target.value)}
+            className="border border-gray-300 rounded-lg p-2 w-full"
           >
             <option value="">All</option>
-            {subActivityOptions.map((sub, index) => (
-              <option key={index} value={sub}>
-                {sub}
+            {siteOptions.map((site, index) => (
+              <option key={index} value={site}>
+                {site}
               </option>
             ))}
           </select>
         </div>
-      )}
+
+        {/* Activity Filter */}
+        <div className="flex flex-col">
+          <label className="text-gray-700 text-sm font-semibold mb-1">Activity</label>
+          <select
+            value={selectedActivity}
+            onChange={(e) => {
+              setSelectedActivity(e.target.value);
+              setSelectedSubActivity("");
+            }}
+            className="border border-gray-300 rounded-lg p-2 w-full"
+          >
+            <option value="">All</option>
+            {activityOptions.map((activity, index) => (
+              <option key={index} value={activity}>
+                {activity}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Sub-Activity Filter */}
+        {subActivityOptions.length > 0 && (
+          <div className="flex flex-col">
+            <label className="text-gray-700 text-sm font-semibold mb-1">Sub-Activity</label>
+            <select
+              value={selectedSubActivity}
+              onChange={(e) => setSelectedSubActivity(e.target.value)}
+              className="border border-gray-300 rounded-lg p-2 w-full"
+            >
+              <option value="">All</option>
+              {subActivityOptions.map((sub, index) => (
+                <option key={index} value={sub}>
+                  {sub}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {/* Placeholder for 4th column if Sub-Activity not shown */}
+        {subActivityOptions.length === 0 && (
+          <div className="flex flex-col">
+            <label className="text-gray-700 text-sm font-semibold mb-1">&nbsp;</label>
+            <div className="border border-transparent rounded-lg p-2 w-full"></div>
+          </div>
+        )}
+
+      </div>
     </div>
   );
 };

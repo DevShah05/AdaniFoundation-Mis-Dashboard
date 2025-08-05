@@ -1,5 +1,3 @@
-// src/Data/EducationCommonMapping.ts
-
 export const EducationCommonMapping: Record<
   string,
   {
@@ -9,95 +7,72 @@ export const EducationCommonMapping: Record<
     boysField: string;
   }
 > = {
-  // 1. New Classroom Construction
   "New Classroom Construction": {
     plannedField: "noOfClassroomsPlanned",
     executedField: "noOfClassroomsConstructed",
     girlsField: "noOfGirlsStudentsBenefited",
     boysField: "noOfBoysStudentsBenefited",
   },
-
-  // 2. Toilet Construction
   "Toilet Construction": {
-    plannedField: "noOfGirlsToiletsPlanned", // Or combine total of both?
-    executedField: "noOfGirlsToiletsConstructed", // Adjust if needed
+    plannedField: "noOfGirlsToiletsPlanned",
+    executedField: "noOfGirlsToiletsConstructed",
     girlsField: "noOfGirlsStudentsBenefited",
-    boysField: "noOfBoyStudentsBenefited",
+    boysField: "noOfBoysStudentsBenefited",
   },
-
-  // 3. Drinking Water Facilities
   "Drinking Water Facilities": {
     plannedField: "noOfUnitsPlanned",
     executedField: "noOfUnitsExecuted",
-    girlsField: "noOfGirlStudentsBenefited",
-    boysField: "noOfBoyStudentsBenefited",
+    girlsField: "noOfGirlsStudentsBenefited",
+    boysField: "noOfBoysStudentsBenefited",
   },
-
-  // 4. Boundary Wall Construction
   "Boundary Wall Construction": {
     plannedField: "noOfUnitsPlanned",
     executedField: "noOfUnitsExecuted",
-    girlsField: "noOfGirlStudentsBenefited",
-    boysField: "noOfBoyStudentsBenefited",
+    girlsField: "noOfGirlsStudentsBenefited",
+    boysField: "noOfBoysStudentsBenefited",
   },
-
-  // 5. Kitchen Shed Construction
   "Kitchen Shed Construction": {
     plannedField: "noOfUnitsPlanned",
     executedField: "noOfUnitsExecuted",
-    girlsField: "noOfGirlStudentsBenefited",
-    boysField: "noOfBoyStudentsBenefited",
+    girlsField: "noOfGirlsStudentsBenefited",
+    boysField: "noOfBoysStudentsBenefited",
   },
-
-  // 6. Repair and Renovation
   "Repair and Renovation": {
     plannedField: "noOfUnitsPlanned",
     executedField: "noOfUnitsExecuted",
-    girlsField: "noOfGirlStudentsBenefited",
-    boysField: "noOfBoyStudentsBenefited",
+    girlsField: "noOfGirlsStudentsBenefited",
+    boysField: "noOfBoysStudentsBenefited",
   },
-
-  // 7. Smart Class Development
   "Smart Class Development": {
     plannedField: "noOfUnitsPlanned",
     executedField: "noOfUnitsExecuted",
     girlsField: "noOfGirlsStudentsBenefited",
-    boysField: "noOfBoyStudentsBenefited",
+    boysField: "noOfBoysStudentsBenefited",
   },
-
-  // 8. Seating Arrangement
   "Seating Arrangement": {
     plannedField: "noOfDeskBenchesPlanned",
     executedField: "noOfDeskBenchesProvided",
-    girlsField: "noOfGirlStudentsBenefited",
-    boysField: "noOfBoyStudentsBenefited",
+    girlsField: "noOfGirlsStudentsBenefited",
+    boysField: "noOfBoysStudentsBenefited",
   },
-
-  // 9. School Playground Development
   "School Playground Development": {
     plannedField: "noOfPlaygroundsPlanned",
     executedField: "noOfPlaygroundsDeveloped",
     girlsField: "noOfGirlsStudentsBenefited",
-    boysField: "noOfBoyStudentsBenefited",
+    boysField: "noOfBoysStudentsBenefited",
   },
-
-  // 10. Other Infra Development
   "Other Infra Development": {
     plannedField: "noOfUnitsPlanned",
     executedField: "noOfUnitsExecuted",
     girlsField: "noOfGirlsStudentsBenefited",
     boysField: "noOfBoysStudentsBenefited",
   },
-
-  // 11. Utthan
   Utthan: {
     plannedField: "noOfSchoolsCovered",
     executedField: "noOfUtthanSahayaksDeployed",
     girlsField: "noOfGirlsStudentsBenefited",
-    boysField: "noOfBoyStudentsBenefited",
+    boysField: "noOfBoysStudentsBenefited",
   },
-
-  // 12. Adani Competitive Coaching Centre
   "Adani Competitive Coaching Centre": {
     plannedField: "noOfUnits",
     executedField: "noOfResourcePersonDeployed",

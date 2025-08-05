@@ -1,4 +1,3 @@
-// src/Components/ImageSlider.tsx
 import React from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
@@ -41,8 +40,8 @@ const ImageSlider: React.FC<ImageSliderProps> = ({ data }) => {
     if (images.length === 0) return null;
 
     return (
-      <div className="mb-8">
-        <h3 className="text-lg font-semibold text-[#6B1E82] mb-2 text-center">{title}</h3>
+      <div className="mb-6">
+        <h3 className="text-sm font-semibold text-[#6B1E82] mb-2 text-center">{title}</h3>
         <Swiper spaceBetween={20} slidesPerView={1} loop>
           {images.map((img, index) => (
             <SwiperSlide key={index}>
@@ -50,7 +49,7 @@ const ImageSlider: React.FC<ImageSliderProps> = ({ data }) => {
                 <img
                   src={img.src}
                   alt={`Slide ${index}`}
-                  className="rounded-lg shadow w-[300px] h-[200px] object-cover"
+                  className="rounded-lg shadow w-[280px] h-[180px] object-cover"
                 />
                 <p className="text-xs mt-1 text-gray-600">{img.subActivity}</p>
               </div>
@@ -62,15 +61,15 @@ const ImageSlider: React.FC<ImageSliderProps> = ({ data }) => {
   };
 
   return (
-    <div className="px-4 mt-8">
-      <h2 className="text-sm font-semibold text-[#6B1E82] mb-4">Pre/Post Activity Images</h2>
-      <div className="bg-white rounded-lg shadow p-4">
-        {renderSlider("Pre Activity", preImages)}
-        {renderSlider("Post Activity", postImages)}
-        {preImages.length === 0 && postImages.length === 0 && (
-          <p className="text-sm text-gray-500 text-center">No images available.</p>
-        )}
-      </div>
+    <div className="bg-white rounded-lg shadow p-4 w-full">
+      <h2 className="text-sm font-semibold text-[#6B1E82] mb-4 text-center">
+        Pre/Post Activity Images
+      </h2>
+      {renderSlider("Pre Activity", preImages)}
+      {renderSlider("Post Activity", postImages)}
+      {preImages.length === 0 && postImages.length === 0 && (
+        <p className="text-sm text-gray-500 text-center">No images available.</p>
+      )}
     </div>
   );
 };
