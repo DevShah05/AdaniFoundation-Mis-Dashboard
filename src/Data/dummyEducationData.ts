@@ -10,6 +10,16 @@ export const dummyEducationData = [
     uploadedImages: ["https://via.placeholder.com/300"],
     timestamp: "2025-07-28T10:00:00Z"
   },
+  {site: "Wadi",
+    activity: "School Infrastructure",
+    subActivity: "New Classroom Construction",
+    noOfClassroomsPlanned: 10,
+    noOfClassroomsConstructed: 3,
+    noOfGirlsStudentsBenefited: 60,
+    noOfBoysStudentsBenefited: 55,
+    uploadedImages: ["https://via.placeholder.com/300"],
+    timestamp: "2025-07-28T10:00:00Z"
+  },
   {
     site: "Damodar",
     activity: "School Infrastructure",

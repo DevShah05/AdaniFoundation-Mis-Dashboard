@@ -2,12 +2,14 @@ import React, { useState } from "react";
 import { dummyEducationData } from "../../Data/dummyEducationData";
 import { EducationCommonMapping } from "../../Data/EducationCommonMapping";
 import { educationFieldLabelMap } from "../../Data/EducationFieldLabelMap";
+
 import Filters from "../../Components/Filters";
 import Charts from "../../Components/Charts";
 import KPICards from "../../Components/KPICards";
 import ImageSlider from "../../Components/ImageSlider";
 import DataTable from "../../Components/DataTable";
 import Header from "../../Components/Header";
+import GaugeChart from "../../Components/GaugeChart";
 
 const EducationDashboard: React.FC = () => {
   const [selectedSite, setSelectedSite] = useState("");
@@ -22,9 +24,28 @@ const EducationDashboard: React.FC = () => {
     );
   });
 
+  const key = selectedSubActivity || selectedActivity;
+  const map = EducationCommonMapping[key];
+
+  const getValue = (item: any, field: string) =>
+    (item as Record<string, any>)[field] || 0;
+
+  const totalPlanned = filteredData.reduce(
+    (sum, item) => sum + (map ? getValue(item, map.plannedField) : 0),
+    0
+  );
+
+  const totalExecuted = filteredData.reduce(
+    (sum, item) => sum + (map ? getValue(item, map.executedField) : 0),
+    0
+  );
+
+  const completion =
+    totalPlanned > 0 ? Math.round((totalExecuted / totalPlanned) * 100) : 0;
+
   return (
-    <div className="px-4 sm:px-6 lg:px-8 py-6">
-      <Header title="Education Vertical" />
+    <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      <Header subtitle="Education Vertical" />
 
       <Filters
         selectedSite={selectedSite}
@@ -39,32 +60,40 @@ const EducationDashboard: React.FC = () => {
         data={dummyEducationData}
       />
 
-      {/* Row 1: Bar and Pie Charts */}
-      <Charts
-        data={filteredData}
-        selectedActivity={selectedActivity}
-        selectedSubActivity={selectedSubActivity}
-        mapping={EducationCommonMapping}
-      />
-
-      {/* Row 2: Gauge and Image Slider side-by-side */}
-      <div className="flex flex-col lg:flex-row gap-6 px-4 mt-8">
-        <div className="flex-1 flex justify-center"></div>
-        <div className="flex-1">
-          <ImageSlider data={filteredData} />
+      {/* ✅ 2x2 Grid of Charts */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 justify-items-center">
+        <div className="w-full bg-white rounded-lg shadow p-4">
+          <Charts
+            data={filteredData}
+            selectedActivity={selectedActivity}
+            selectedSubActivity={selectedSubActivity}
+            mapping={EducationCommonMapping}
+            show="bar"
+          />
         </div>
+
+        <div className="w-full bg-white rounded-lg shadow p-4">
+          <Charts
+            data={filteredData}
+            selectedActivity={selectedActivity}
+            selectedSubActivity={selectedSubActivity}
+            mapping={EducationCommonMapping}
+            show="pie"
+          />
+        </div>
+
+        <GaugeChart completion={completion} />
+        <ImageSlider data={filteredData} />
       </div>
 
-      {/* Row 3: KPI Cards */}
       <KPICards
         data={filteredData}
         selectedActivity={selectedActivity}
         selectedSubActivity={selectedSubActivity}
         mapping={EducationCommonMapping}
-        fieldLabelMap={educationFieldLabelMap} // ✅ FIX
+        fieldLabelMap={educationFieldLabelMap}
       />
 
-      {/* Row 4: Data Table */}
       <DataTable
         data={filteredData}
         fieldLabelMap={educationFieldLabelMap}

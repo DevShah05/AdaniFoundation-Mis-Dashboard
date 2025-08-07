@@ -1,3 +1,4 @@
+// src/Components/ImageSlider.tsx
 import React from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
@@ -36,12 +37,17 @@ const ImageSlider: React.FC<ImageSliderProps> = ({ data }) => {
     }
   });
 
-  const renderSlider = (title: string, images: { src: string; subActivity: string }[]) => {
+  const renderSlider = (
+    title: string,
+    images: { src: string; subActivity: string }[]
+  ) => {
     if (images.length === 0) return null;
 
     return (
-      <div className="mb-6">
-        <h3 className="text-sm font-semibold text-[#6B1E82] mb-2 text-center">{title}</h3>
+      <div className="mb-4">
+        <h3 className="text-sm font-semibold text-[#6B1E82] mb-2 text-center">
+          {title}
+        </h3>
         <Swiper spaceBetween={20} slidesPerView={1} loop>
           {images.map((img, index) => (
             <SwiperSlide key={index}>
@@ -61,8 +67,8 @@ const ImageSlider: React.FC<ImageSliderProps> = ({ data }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow p-4 w-full">
-      <h2 className="text-sm font-semibold text-[#6B1E82] mb-4 text-center">
+    <div className="flex-1 bg-white rounded-lg shadow p-4 min-w-[300px] max-w-[400px]">
+      <h2 className="text-lg font-semibold text-[#6B1E82] mb-2 text-center">
         Pre/Post Activity Images
       </h2>
       {renderSlider("Pre Activity", preImages)}
@@ -75,3 +81,4 @@ const ImageSlider: React.FC<ImageSliderProps> = ({ data }) => {
 };
 
 export default ImageSlider;
+

@@ -26,26 +26,22 @@ const Filters: React.FC<FiltersProps> = ({
     ? Array.from(
         new Set(
           data
-            .filter(
-              (item) =>
-                item.activity === selectedActivity && item.subActivity !== ""
-            )
+            .filter((item) => item.activity === selectedActivity && item.subActivity !== "")
             .map((item) => item.subActivity)
         )
       ).sort()
     : [];
 
   return (
-    <div className="w-full bg-white p-4 rounded-lg shadow-md mb-6">
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-
+    <div className="w-full bg-white p-4 rounded shadow-sm">
+      <div className="flex flex-wrap gap-4 justify-start items-end">
         {/* Site Filter */}
-        <div className="flex flex-col">
-          <label className="text-gray-700 text-sm font-semibold mb-1">Site</label>
+        <div className="w-full sm:w-1/3 md:w-1/4">
+          <label className="block text-gray-700 text-xs font-semibold mb-1">Site</label>
           <select
             value={selectedSite}
             onChange={(e) => setSelectedSite(e.target.value)}
-            className="border border-gray-300 rounded-lg p-2 w-full"
+            className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
           >
             <option value="">All</option>
             {siteOptions.map((site, index) => (
@@ -57,15 +53,15 @@ const Filters: React.FC<FiltersProps> = ({
         </div>
 
         {/* Activity Filter */}
-        <div className="flex flex-col">
-          <label className="text-gray-700 text-sm font-semibold mb-1">Activity</label>
+        <div className="w-full sm:w-1/3 md:w-1/4">
+          <label className="block text-gray-700 text-xs font-semibold mb-1">Activity</label>
           <select
             value={selectedActivity}
             onChange={(e) => {
               setSelectedActivity(e.target.value);
               setSelectedSubActivity("");
             }}
-            className="border border-gray-300 rounded-lg p-2 w-full"
+            className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
           >
             <option value="">All</option>
             {activityOptions.map((activity, index) => (
@@ -78,12 +74,12 @@ const Filters: React.FC<FiltersProps> = ({
 
         {/* Sub-Activity Filter */}
         {subActivityOptions.length > 0 && (
-          <div className="flex flex-col">
-            <label className="text-gray-700 text-sm font-semibold mb-1">Sub-Activity</label>
+          <div className="w-full sm:w-1/3 md:w-1/4">
+            <label className="block text-gray-700 text-xs font-semibold mb-1">Sub-Activity</label>
             <select
               value={selectedSubActivity}
               onChange={(e) => setSelectedSubActivity(e.target.value)}
-              className="border border-gray-300 rounded-lg p-2 w-full"
+              className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
             >
               <option value="">All</option>
               {subActivityOptions.map((sub, index) => (
@@ -94,15 +90,6 @@ const Filters: React.FC<FiltersProps> = ({
             </select>
           </div>
         )}
-
-        {/* Placeholder for 4th column if Sub-Activity not shown */}
-        {subActivityOptions.length === 0 && (
-          <div className="flex flex-col">
-            <label className="text-gray-700 text-sm font-semibold mb-1">&nbsp;</label>
-            <div className="border border-transparent rounded-lg p-2 w-full"></div>
-          </div>
-        )}
-
       </div>
     </div>
   );

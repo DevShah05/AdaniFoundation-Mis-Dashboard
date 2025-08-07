@@ -1,5 +1,7 @@
 import React from "react";
 import CountUp from "react-countup";
+import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/css";
 
 interface KPICardsProps {
   data: any[];
@@ -14,7 +16,7 @@ interface KPICardsProps {
       boysField: string;
     }
   >;
-  fieldLabelMap: Record<string, string>; // ✅ New prop for dynamic label mapping
+  fieldLabelMap: Record<string, string>;
 }
 
 const KPICards: React.FC<KPICardsProps> = ({
@@ -41,36 +43,33 @@ const KPICards: React.FC<KPICardsProps> = ({
     value,
   }));
 
-  const chunked = [];
-  for (let i = 0; i < displayData.length; i += 4) {
-    chunked.push(displayData.slice(i, i + 4));
-  }
-
   return (
-    <div className="mt-8 px-4 space-y-6">
-      <h2 className="text-lg font-semibold text-[#6B1E82] mb-2">
+    <div className="mt-6 px-4 max-w-screen-xl mx-auto">
+      <h2 className="text-base font-semibold text-[#6B1E82] mb-4">
         Key Performance Indicators
       </h2>
-      {chunked.map((row, rowIndex) => (
-        <div
-          key={rowIndex}
-          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4"
-        >
-          {row.map((item, idx) => (
-            <div
-              key={idx}
-              className="bg-white rounded-lg shadow p-4 flex flex-col items-center justify-center min-h-[100px] hover:shadow-lg transition"
-            >
-              <h4 className="text-sm text-gray-600 mb-1 text-center">
+
+      <Swiper
+        spaceBetween={16}
+        slidesPerView={1}
+        breakpoints={{
+          640: { slidesPerView: 2 },
+          1024: { slidesPerView: 4 },
+        }}
+      >
+        {displayData.map((item, index) => (
+          <SwiperSlide key={index}>
+            <div className="bg-white rounded-lg shadow p-4 flex flex-col items-center justify-center min-h-[120px] hover:shadow-md transition">
+              <h4 className="text-xs text-gray-600 mb-1 text-center">
                 {item.label}
               </h4>
-              <div className="text-2xl font-bold text-[#6B1E82]">
+              <div className="text-lg font-bold text-[#6B1E82]">
                 <CountUp end={item.value} duration={1.5} separator="," />
               </div>
             </div>
-          ))}
-        </div>
-      ))}
+          </SwiperSlide>
+        ))}
+      </Swiper>
     </div>
   );
 };

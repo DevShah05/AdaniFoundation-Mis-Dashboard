@@ -1,3 +1,4 @@
+// src/Components/Charts.tsx
 import React from "react";
 import {
   BarChart,
@@ -9,6 +10,8 @@ import {
   Pie,
   Cell,
   ResponsiveContainer,
+  Legend,
+  LabelList,
 } from "recharts";
 
 interface ChartsProps {
@@ -24,6 +27,7 @@ interface ChartsProps {
       boysField: string;
     }
   >;
+  show: "bar" | "pie";
 }
 
 const COLORS = ["#6B1E82", "#E6518B"];
@@ -33,6 +37,7 @@ const Charts: React.FC<ChartsProps> = ({
   selectedActivity,
   selectedSubActivity,
   mapping,
+  show,
 }) => {
   const filteredData = data.filter((item) => {
     const matchActivity = selectedActivity ? item.activity === selectedActivity : true;
@@ -87,36 +92,36 @@ const Charts: React.FC<ChartsProps> = ({
     { name: "Boys", value: totalBoys },
   ];
 
-  const totalPlanned = chartData.reduce((sum, item) => sum + (item.Planned || 0), 0);
-  const totalExecuted = chartData.reduce((sum, item) => sum + (item.Executed || 0), 0);
-  const completion = totalPlanned ? Math.round((totalExecuted / totalPlanned) * 100) : 0;
-
   return (
-    <div className="space-y-6 px-4 mt-8">
-      {/* Row 1: Bar and Pie Side-by-Side */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Bar Chart */}
-        <div className="bg-white rounded-lg shadow p-4">
-          <h2 className="text-sm font-semibold text-[#6B1E82] mb-2">
-            Planned vs Executed (Bar)
+    <div className="w-full">
+      {show === "bar" && (
+        <>
+          <h2 className="text-lg font-semibold text-[#6B1E82] mb-2">
+            Planned vs Executed
           </h2>
-          <ResponsiveContainer width="100%" height={240}>
-            <BarChart data={chartData}>
+          <ResponsiveContainer width="100%" height={260}>
+            <BarChart data={chartData} barCategoryGap="30%" barSize={24}>
               <XAxis dataKey="name" />
               <YAxis />
               <Tooltip />
-              <Bar dataKey="Planned" fill="#6B1E82" />
-              <Bar dataKey="Executed" fill="#E6518B" />
+              <Legend />
+              <Bar dataKey="Planned" fill="#6B1E82" radius={[10, 10, 0, 0]}>
+                <LabelList dataKey="Planned" position="top" />
+              </Bar>
+              <Bar dataKey="Executed" fill="#E6518B" radius={[10, 10, 0, 0]}>
+                <LabelList dataKey="Executed" position="top" />
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
-        </div>
+        </>
+      )}
 
-        {/* Pie Chart */}
-        <div className="bg-white rounded-lg shadow p-4">
-          <h2 className="text-sm font-semibold text-[#6B1E82] mb-2">
-            Gender-wise Beneficiaries (Pie)
+      {show === "pie" && (
+        <>
+          <h2 className="text-lg font-semibold text-[#6B1E82] mb-2 text-center">
+            Gender-wise Beneficiaries
           </h2>
-          <ResponsiveContainer width="100%" height={240}>
+          <ResponsiveContainer width="100%" height={260}>
             <PieChart>
               <Pie
                 data={genderData}
@@ -130,35 +135,11 @@ const Charts: React.FC<ChartsProps> = ({
                 ))}
               </Pie>
               <Tooltip />
+              <Legend verticalAlign="bottom" height={36} />
             </PieChart>
           </ResponsiveContainer>
-        </div>
-      </div>
-
-      {/* Row 2: Gauge Centered */}
-      <div className="flex justify-center">
-        <div className="bg-white rounded-lg shadow p-4 flex flex-col items-center justify-center w-[320px]">
-          <h2 className="text-sm font-semibold text-[#6B1E82] mb-2">
-            Completion Gauge
-          </h2>
-          <svg width="160" height="100">
-            <circle cx="80" cy="80" r="70" fill="none" stroke="#eee" strokeWidth="14" />
-            <circle
-              cx="80"
-              cy="80"
-              r="70"
-              fill="none"
-              stroke="#6B1E82"
-              strokeWidth="14"
-              strokeDasharray={`${(completion / 100) * 440},440`}
-              transform="rotate(-90 80 80)"
-            />
-            <text x="80" y="85" textAnchor="middle" fontSize="22" fill="#6B1E82">
-              {completion}%
-            </text>
-          </svg>
-        </div>
-      </div>
+        </>
+      )}
     </div>
   );
 };
