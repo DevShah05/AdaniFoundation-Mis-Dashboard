@@ -29,7 +29,7 @@
       "Components/*": ["Components/*"],
       "Data/*": ["Data/*"],
       "Types/*": ["Types/*"],
-      "Verticals/*": ["Verticals/*"]
+      "Pages/*": ["Pages/*"]
     }
   },
   "include": ["src"]

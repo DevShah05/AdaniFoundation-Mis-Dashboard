@@ -1,3 +1,31 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* src/index.css */
+@import "tailwindcss";
+
+/* Optional: thin scrollbars */
+.scrollbar-thin::-webkit-scrollbar { width: 8px; height: 8px; }
+.scrollbar-thin::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
+.scrollbar-thin::-webkit-scrollbar-track { background: #f1f5f9; }
+
+/* --- Swiper: remove any default backgrounds & weird heights --- */
+.swiper,
+.swiper-wrapper,
+.swiper-slide,
+.swiper-slide > *,
+.swiper-slide > div,
+.swiper-slide img {
+  background: transparent !important;
+}
+
+.swiper {
+  height: auto !important;
+  min-height: 0 !important;
+}
+
+/* Optional: keep arrows but no backgrounds */
+.swiper-button-prev,
+.swiper-button-next {
+  background: transparent !important;
+}
+
+/* Optional: give slides a tiny minimum height to avoid layout jumps */
+.swiper-slide { min-height: 180px; }

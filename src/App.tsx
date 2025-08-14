@@ -1,40 +1,39 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate, Link } from "react-router-dom";
-import Dashboard from "./Pages/Dashboard";
-import CombinedView from "./Pages/CombinedView";
-import CommunityHealthDashboard from "./Verticals/CommunityHealth/CommunityHealthDashboard";
+import { BrowserRouter as Router, Routes, Route, Navigate, NavLink } from "react-router-dom";
+
+import EducationDashboard from "./Pages/Education/EducationDashboard";
+import CommunityHealthDashboard from "./Pages/CommunityHealth/CommunityHealthDashboard";
 
 const App: React.FC = () => {
   return (
     <Router>
-      <div className="min-h-screen bg-gray-100">
-
-        {/* 🔹 Navigation Bar */}
-        <nav className="bg-white shadow p-4 flex gap-4">
-          <Link to="/education" className="text-blue-600 hover:underline">
+      <div className="min-h-[100svh] bg-[#F7F9FC] flex flex-col">
+        <nav className="bg-white shadow px-4 py-3 flex gap-4">
+          <NavLink
+            to="/education"
+            className={({ isActive }) =>
+              `hover:underline ${isActive ? "text-[#005e8e] font-semibold" : "text-[#007BBD]"}`
+            }
+          >
             Education
-          </Link>
-          <Link to="/community-health" className="text-blue-600 hover:underline">
+          </NavLink>
+          <NavLink
+            to="/community-health"
+            className={({ isActive }) =>
+              `hover:underline ${isActive ? "text-[#005e8e] font-semibold" : "text-[#007BBD]"}`
+            }
+          >
             Community Health
-          </Link>
-          <Link to="/combined" className="text-blue-600 hover:underline">
-            Combined View
-          </Link>
+          </NavLink>
         </nav>
 
-        <Routes>
-          {/* Redirect root to /education */}
-          <Route path="/" element={<Navigate to="/education" />} />
-
-          {/* Education Vertical */}
-          <Route path="/education/*" element={<Dashboard />} />
-
-          {/* Community Health Vertical */}
-          <Route path="/community-health" element={<CommunityHealthDashboard />} />
-
-          {/* Combined View */}
-          <Route path="/combined" element={<CombinedView />} />
-        </Routes>
+        <main className="flex-1">
+          <Routes>
+            <Route path="/" element={<Navigate to="/education" replace />} />
+            <Route path="/education" element={<EducationDashboard />} />
+            <Route path="/community-health" element={<CommunityHealthDashboard />} />
+          </Routes>
+        </main>
       </div>
     </Router>
   );

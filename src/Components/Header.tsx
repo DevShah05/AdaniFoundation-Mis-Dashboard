@@ -1,30 +1,46 @@
-// src/Components/Header.tsx
-import React from "react";
-import adaniLogo from "../assets/adani-logo.png";
+import type { ReactNode } from "react";
+import logoDefault from "../assets/adani-logo.png";
 
-interface HeaderProps {
-  subtitle?: string; // Example: "Education Vertical"
-}
-
-const Header: React.FC<HeaderProps> = ({ subtitle }) => {
-  return (
-    <header className="w-full bg-white shadow px-4 sm:px-6 py-3 mb-4 rounded flex items-center space-x-4">
-      {/* Logo */}
-      <img
-        src={adaniLogo}
-        alt="Adani Foundation Logo"
-        className="h-10 w-auto object-contain"
-      />
-
-      {/* Label */}
-      <div className="leading-tight">
-        <h1 className="text-xl sm:text-2xl font-bold text-[#6B1E82]">Adani Foundation</h1>
-        {subtitle && (
-          <p className="text-sm text-[#6B1E82] font-semibold">{subtitle}</p>
-        )}
-      </div>
-    </header>
-  );
+type HeaderProps = {
+  title?: string;
+  icon?: ReactNode;
+  logoSrc?: string;
+  showDate?: boolean;
+  iconColor?: string;
 };
 
-export default Header;
+export default function Header({
+  title = "Education",
+  icon,
+  logoSrc,
+  showDate = true,
+  iconColor = "#A4C639",
+}: HeaderProps) {
+  return (
+    <header className="w-full bg-white shadow-md py-3 px-4 flex items-center justify-between">
+      <div className="flex items-center gap-3 min-w-0">
+        <img
+          src={logoSrc || logoDefault}
+          alt="Adani Foundation"
+          className="h-10 w-auto object-contain"
+        />
+        <h1 className="text-2xl md:text-3xl font-bold text-[#007BBD] flex items-center gap-2">
+          {icon ? <span style={{ color: iconColor }}>{icon}</span> : null}
+          <span className="truncate">{title}</span>
+        </h1>
+      </div>
+
+      {showDate && (
+        <div className="hidden md:flex items-center text-gray-600 text-sm">
+          {new Date().toLocaleDateString("en-IN", {
+            weekday: "long",
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+            timeZone: "Asia/Kolkata",
+          })}
+        </div>
+      )}
+    </header>
+  );
+}

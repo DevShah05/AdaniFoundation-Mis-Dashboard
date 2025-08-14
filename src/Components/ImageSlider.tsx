@@ -1,84 +1,59 @@
-// src/Components/ImageSlider.tsx
 import React from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
+import { Navigation, Pagination } from "swiper/modules";
 
 interface ImageSliderProps {
-  data: any[];
+  images: string[] | string;
+  title?: string;
 }
 
-const ImageSlider: React.FC<ImageSliderProps> = ({ data }) => {
-  const preImages: { src: string; subActivity: string }[] = [];
-  const postImages: { src: string; subActivity: string }[] = [];
+const API_BASE = import.meta.env.VITE_API_BASE_URL || "https://mis.adani.digital";
+const toAbsolute = (url: string) => {
+  if (!url) return "";
+  try {
+    return new URL(url).href; // already absolute
+  } catch {
+    return API_BASE.replace(/\/+$/, "") + "/" + url.replace(/^\/+/, "");
+  }
+};
 
-  data.forEach((item) => {
-    const sub = item.subActivity || item.activity || "Untitled";
+const ImageSlider: React.FC<ImageSliderProps> = ({ images = [], title }) => {
+  const list = (Array.isArray(images) ? images : [images])
+    .filter(Boolean)
+    .map((u) => toAbsolute(String(u)));
 
-    if (Array.isArray(item.preActivityImages)) {
-      item.preActivityImages.forEach((src: string) =>
-        preImages.push({ src, subActivity: sub })
-      );
-    }
-
-    if (Array.isArray(item.postActivityImages)) {
-      item.postActivityImages.forEach((src: string) =>
-        postImages.push({ src, subActivity: sub })
-      );
-    }
-
-    if (
-      !item.preActivityImages &&
-      !item.postActivityImages &&
-      Array.isArray(item.uploadedImages)
-    ) {
-      item.uploadedImages.forEach((src: string) =>
-        postImages.push({ src, subActivity: sub })
-      );
-    }
-  });
-
-  const renderSlider = (
-    title: string,
-    images: { src: string; subActivity: string }[]
-  ) => {
-    if (images.length === 0) return null;
-
-    return (
-      <div className="mb-4">
-        <h3 className="text-sm font-semibold text-[#6B1E82] mb-2 text-center">
-          {title}
-        </h3>
-        <Swiper spaceBetween={20} slidesPerView={1} loop>
-          {images.map((img, index) => (
-            <SwiperSlide key={index}>
-              <div className="flex flex-col items-center">
-                <img
-                  src={img.src}
-                  alt={`Slide ${index}`}
-                  className="rounded-lg shadow w-[280px] h-[180px] object-cover"
-                />
-                <p className="text-xs mt-1 text-gray-600">{img.subActivity}</p>
-              </div>
-            </SwiperSlide>
-          ))}
-        </Swiper>
-      </div>
-    );
-  };
+  const many = list.length > 1;
 
   return (
-    <div className="flex-1 bg-white rounded-lg shadow p-4 min-w-[300px] max-w-[400px]">
-      <h2 className="text-lg font-semibold text-[#6B1E82] mb-2 text-center">
-        Pre/Post Activity Images
-      </h2>
-      {renderSlider("Pre Activity", preImages)}
-      {renderSlider("Post Activity", postImages)}
-      {preImages.length === 0 && postImages.length === 0 && (
-        <p className="text-sm text-gray-500 text-center">No images available.</p>
+    <div className="bg-white rounded-lg shadow p-4 w-full h-full flex flex-col">
+      {title && <h3 className="text-[#007BBD] text-sm font-semibold mb-2">{title}</h3>}
+
+      {list.length > 0 ? (
+        <div className="relative w-full h-48 md:h-56 overflow-hidden rounded">
+          <Swiper modules={[Navigation, Pagination]} navigation={many} pagination={many ? { clickable: true } : false} className="w-full h-full">
+            {list.map((src, idx) => (
+              <SwiperSlide key={`${src}-${idx}`} className="!bg-transparent !h-full !w-full">
+                <img
+                  src={src}
+                  alt={`Slide ${idx + 1}`}
+                  loading="lazy"
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).src = "https://via.placeholder.com/800x450?text=Image+not+found";
+                  }}
+                />
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        </div>
+      ) : (
+        <div className="flex-1 flex items-center justify-center text-gray-400 text-sm">No images available</div>
       )}
     </div>
   );
 };
 
 export default ImageSlider;
-
