@@ -1,6 +1,7 @@
+// src/features/Education/hooks.ts
 import { useEffect, useMemo, useState } from "react";
 import { fetchFormRows, fetchKpi } from "./services";
-import { getFormKeysForSelection } from "./registry";
+import { getFormKeysForSelection, type FormKey } from "./registry";
 import type { Row } from "./services";
 
 type Filters = {
@@ -9,86 +10,116 @@ type Filters = {
   subActivity?: string;
 };
 
-/** Fetch + combine rows from the selected form(s). Robust to partial failures. */
-export function useEducationRecords(filters: Filters, page = 0, size = 200) {
+type Query = Record<string, string | number | boolean | null | undefined>;
+
+export function useEducationRecords(filters: Filters, page?: number, size?: number) {
   const [records, setRecords] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<unknown>(null);
 
-  const formKeys = useMemo(
-    () => getFormKeysForSelection(filters.activity || "", filters.subActivity || ""),
+  const formKeys: FormKey[] = useMemo(
+    () => getFormKeysForSelection(filters.activity, filters.subActivity),
     [filters.activity, filters.subActivity]
   );
 
+  const params: Query = useMemo(() => {
+    const q: Query = {};
+    if (filters.site) q.site = filters.site;
+    if (page !== undefined && size !== undefined) {
+      q.page = page;
+      q.size = size;
+    }
+    return q;
+  }, [filters.site, page, size]);
+
   useEffect(() => {
-    let ok = true;
-    setLoading(true);
-    setError(null);
-
-    const params: Record<string, any> = {
-      site: filters.site ? filters.site : undefined,
-      page,
-      size,
-    };
-
     if (!formKeys.length) {
       setRecords([]);
       setLoading(false);
+      setError(null);
       return;
     }
 
-    Promise.allSettled(formKeys.map((k) => fetchFormRows(k, params)))
-      .then((results) => {
-        if (!ok) return;
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
 
-        const fulfilled = results.filter(r => r.status === "fulfilled") as PromiseFulfilledResult<Row[]>[];
-        const rejected  = results.filter(r => r.status === "rejected") as PromiseRejectedResult[];
+    const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
 
-        const rows = fulfilled.flatMap(r => r.value);
-        setRecords(rows);
+    (async () => {
+      const results = await Promise.allSettled(
+        formKeys.map((k) => fetchFormRows(k, params, controller?.signal))
+      );
 
-        if (rejected.length > 0) {
-          console.warn("[useEducationRecords] Some endpoints failed:", rejected.map(r => r.reason));
-          setError(rejected[0].reason ?? new Error("One or more endpoints failed"));
-        } else {
-          setError(null);
-        }
-      })
-      .catch((e) => {
-        if (!ok) return;
-        setError(e);
-        setRecords([]);
-      })
-      .finally(() => ok && setLoading(false));
+      if (cancelled) return;
+
+      const ok = results.filter((r): r is PromiseFulfilledResult<Row[]> => r.status === "fulfilled");
+      const fail = results.filter((r): r is PromiseRejectedResult => r.status === "rejected");
+
+      setRecords(ok.flatMap((r) => r.value));
+
+      if (fail.length > 0) {
+        console.warn("[useEducationRecords] Some endpoints failed:", fail.map((f) => f.reason));
+        setError(fail[0].reason ?? new Error("One or more endpoints failed"));
+      } else {
+        setError(null);
+      }
+      setLoading(false);
+    })().catch((e) => {
+      if (cancelled) return;
+      setError(e);
+      setRecords([]);
+      setLoading(false);
+    });
 
     return () => {
-      ok = false;
+      cancelled = true;
+      controller?.abort();
     };
-  }, [formKeys.join("|"), JSON.stringify({ site: filters.site || "", page, size })]);
+  }, [formKeys, params]);
 
   return { records, loading, error };
 }
 
-/** Optional: generic KPI hook if you want to show server KPIs as numbers. */
-export function useEducationKpi(formKey: string, kpiKey: string, params?: { site?: string }) {
+/** KPI hook */
+export function useEducationKpi(
+  formKey: FormKey,
+  kpiKey: string,
+  params?: { site?: string } & Query
+) {
   const [value, setValue] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<unknown>(null);
 
+  const kpiParams = useMemo(() => ({ ...(params || {}) }), [params]);
+
   useEffect(() => {
-    let ok = true;
+    let cancelled = false;
     setLoading(true);
     setError(null);
 
-    fetchKpi(formKey, kpiKey, params || {})
-      .then((n) => ok && setValue(Number.isFinite(Number(n)) ? Number(n) : 0))
-      .catch((e) => ok && setError(e))
-      .finally(() => ok && setLoading(false));
+    const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
+
+    fetchKpi(formKey, kpiKey, kpiParams, controller?.signal)
+      .then((n) => {
+        if (cancelled) return;
+        const num = Number(n);
+        setValue(Number.isFinite(num) ? num : 0);
+      })
+      .catch((e) => {
+        if (cancelled) return;
+        setError(e);
+      })
+      .finally(() => {
+        if (cancelled) return;
+        setLoading(false);
+      });
 
     return () => {
-      ok = false;
+      cancelled = true;
+      controller?.abort();
     };
-  }, [formKey, kpiKey, params?.site]);
+  }, [formKey, kpiKey, kpiParams]);
 
   return { value, loading, error };
 }

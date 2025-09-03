@@ -13,7 +13,7 @@ import DataTable from "../../Components/DataTable";
 import { EducationCommonMapping } from "../../Data/EducationCommonMapping";
 import { educationFieldLabelMap } from "../../Data/EducationFieldLabelMap";
 
-// ✅ LOWERCASE path
+
 import { useEducationRecords } from "../../features/Education/hooks";
 
 type Row = Record<string, any>;

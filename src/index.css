@@ -1,6 +1,7 @@
 /* src/index.css */
 @import "tailwindcss";
 
+
 /* Optional: thin scrollbars */
 .scrollbar-thin::-webkit-scrollbar { width: 8px; height: 8px; }
 .scrollbar-thin::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
