@@ -1,19 +1,40 @@
 import React, { useMemo } from "react";
-import CountUp from "react-countup";
-import { Swiper, SwiperSlide } from "swiper/react";
-import "swiper/css";
+import { readNum } from "../utils/readNum";
+
+type Row = Record<string, any>;
 
 interface KPICardsProps {
-  data: any[];
+  data: Row[];
   selectedActivity: string;
   selectedSubActivity: string;
-  mapping: Record<string, { plannedField: string; executedField: string; girlsField: string; boysField: string }>;
+  mapping: Record<
+    string,
+    { plannedField: string; executedField: string; girlsField: string; boysField: string; extraFields?: string[] }
+  >;
+  /** label map used to name any extraFields you expose */
   fieldLabelMap: Record<string, string>;
-  className?: string;
 }
 
-const COLS = ["#007BBD", "#A4C639", "#6B1E82", "#E6518B"];
 const nf = new Intl.NumberFormat("en-IN");
+
+const StatCard: React.FC<{ label: string; value: number; tone?: "blue" | "green" | "amber" | "slate" }> = ({
+  label,
+  value,
+  tone = "slate",
+}) => {
+  const tones: Record<string, string> = {
+    blue: "bg-blue-50 text-blue-700",
+    green: "bg-green-50 text-green-700",
+    amber: "bg-amber-50 text-amber-700",
+    slate: "bg-slate-50 text-slate-700",
+  };
+  return (
+    <div className="bg-white rounded-lg shadow p-4">
+      <div className="text-xs text-gray-500 mb-1">{label}</div>
+      <div className={`inline-block px-3 py-1 rounded ${tones[tone]}`}>{nf.format(value)}</div>
+    </div>
+  );
+};
 
 const KPICards: React.FC<KPICardsProps> = ({
   data,
@@ -21,69 +42,61 @@ const KPICards: React.FC<KPICardsProps> = ({
   selectedSubActivity,
   mapping,
   fieldLabelMap,
-  className = "",
 }) => {
-  const items = useMemo(() => {
-    const key = selectedSubActivity || selectedActivity;
-    if (!data?.length || !key || !mapping[key]) return [];
-    const m = mapping[key];
-    const orderedFields = [m.plannedField, m.executedField, m.girlsField, m.boysField].filter(Boolean);
+  const sums = useMemo(() => {
+    const mapKey = selectedSubActivity || selectedActivity;
+    const m = mapKey ? mapping[mapKey] : undefined;
 
-    return orderedFields.map((field) => {
-      const value = data.reduce((sum, row) => {
-        const v = Number(row?.[field]);
-        return sum + (Number.isFinite(v) ? v : 0);
-      }, 0);
-      return { field, label: fieldLabelMap[field] || field, value };
-    });
-  }, [data, selectedActivity, selectedSubActivity, mapping, fieldLabelMap]);
+    let planned = 0;
+    let executed = 0;
+    let girls = 0;
+    let boys = 0;
 
-  if (items.length === 0) {
-    return (
-      <section className={`mt-6 px-4 max-w-screen-xl mx-auto ${className}`}>
-        <div className="bg-white rounded-lg shadow p-6 text-center text-sm text-gray-500">
-          Select an Activity or Sub-Activity to view KPIs.
-        </div>
-      </section>
-    );
-  }
+    const extras: Record<string, number> = {};
+
+    if (m) {
+      for (const r of data) {
+        // if the parent hasn't filtered rows, guard here
+        if (selectedActivity && r.activity !== selectedActivity) continue;
+        if (selectedSubActivity && r.subActivity !== selectedSubActivity) continue;
+
+        planned += readNum(r, m.plannedField);
+        executed += readNum(r, m.executedField);
+        girls   += readNum(r, m.girlsField);
+        boys    += readNum(r, m.boysField);
+
+        if (m.extraFields?.length) {
+          for (const ex of m.extraFields) {
+            extras[ex] = (extras[ex] ?? 0) + readNum(r, ex);
+          }
+        }
+      }
+    }
+
+    return { planned, executed, girls, boys, extras };
+  }, [data, selectedActivity, selectedSubActivity, mapping]);
+
+  const extraEntries = useMemo(
+    () =>
+      Object.entries(sums.extras || {}).map(([k, v]) => ({
+        key: k,
+        label: fieldLabelMap[k] || k,
+        value: v,
+      })),
+    [sums.extras, fieldLabelMap]
+  );
 
   return (
-    <section className={`mt-6 px-4 max-w-screen-xl mx-auto ${className}`}>
-      <div className="flex items-center justify-between mb-3">
-        <h2 className="text-sm sm:text-base font-semibold text-[#007BBD]">Key Performance Indicators</h2>
-        {(selectedActivity || selectedSubActivity) && (
-          <span className="text-[11px] text-gray-500">
-            {selectedSubActivity ? `For “${selectedSubActivity}”` : `For “${selectedActivity}”`}
-          </span>
-        )}
-      </div>
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <StatCard label="Num. Units Planned / Planned" value={sums.planned} tone="blue" />
+      <StatCard label="Num. Units Executed / Executed" value={sums.executed} tone="green" />
+      <StatCard label="Num. Girl Students Benefited" value={sums.girls} />
+      <StatCard label="Num. Boy Students Benefited" value={sums.boys} />
 
-      <Swiper
-        spaceBetween={16}
-        slidesPerView={1}
-        breakpoints={{ 480: { slidesPerView: 2 }, 768: { slidesPerView: 3 }, 1024: { slidesPerView: 4 }, 1280: { slidesPerView: 5 } }}
-        autoHeight
-        watchOverflow
-        observer
-        observeParents
-      >
-        {items.map((item, i) => (
-          <SwiperSlide key={item.field} className="h-auto">
-            <article
-              className="bg-white rounded-lg shadow p-3 sm:p-4 h-full flex flex-col items-center justify-center hover:shadow-md transition relative overflow-hidden"
-              aria-label={`KPI ${item.label}`}
-            >
-              <span className="absolute top-0 left-0 right-0 h-1" style={{ backgroundColor: COLS[i % COLS.length] }} aria-hidden />
-              <h4 className="text-xs sm:text-sm text-gray-600 mb-1 text-center">{item.label}</h4>
-              <div className="text-lg sm:text-xl font-bold" style={{ color: COLS[i % COLS.length] }}>
-                <CountUp end={item.value} duration={1.2} formattingFn={(val) => nf.format(Math.round(val))} />
-              </div>
-            </article>
-          </SwiperSlide>
-        ))}
-      </Swiper>
-    </section>
+      {extraEntries.map(({ key, label, value }) => (
+        <StatCard key={key} label={label} value={value} tone="amber" />
+      ))}
+    </div>
   );
 };
 

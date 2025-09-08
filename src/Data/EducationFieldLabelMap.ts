@@ -1,31 +1,85 @@
 // src/Data/EducationFieldLabelMap.ts
 
 export const educationFieldLabelMap: Record<string, string> = {
-  noOfClassroomsPlanned: "No. of Classrooms Planned",
-  noOfClassroomsConstructed: "No. of Classrooms Constructed",
-  noOfGirlsStudentsBenefited: "No. of Girls Students Benefited",
-  noOfBoysStudentsBenefited: "No. of Boys Students Benefited",
-  noOfGirlsToiletsPlanned: "No. of Girls Toilets Planned",
-  noOfGirlsToiletsConstructed: "No. of Girls Toilets Constructed",
-  noOfBoyToiletsPlanned: "No. of Boys Toilets Planned",
-  noOfBoyToiletsConstructed: "No. of Boys Toilets Constructed",
-  noOfBoyStudentsBenefited: "No. of Boys Students Benefited",
-  noOfGirlStudentsBenefited: "No. of Girls Students Benefited",
-  noOfUnitsPlanned: "No. of Units Planned",
-  noOfUnitsExecuted: "No. of Units Executed",
-  lengthMeters: "Length (Meters)",
+  // -----------------------------
+  // Generic / Common
+  // -----------------------------
+  //site: "Site",
+  //activity: "Activity",
+  //subActivity: "Sub-Activity",
+  //timestamp: "Timestamp",
+
+  // -----------------------------
+  // Classrooms
+  // -----------------------------
+  numClassroomsPlanned: "Num. Classrooms Planned",
+  numClassroomsConstructed: "Num. Classrooms Constructed",
+  numGirlStudentsBenefited: "Num. Girl Students Benefited",
+  numBoyStudentsBenefited: "Num. Boy Students Benefited",
+
+  // -----------------------------
+  // Toilets
+  // -----------------------------
+  numGirlToiletsPlanned: "Num. Girl Toilets Planned",
+  numGirlToiletsConstructed: "Num. Girl Toilets Constructed",
+  numBoyToiletsPlanned: "Num. Boy Toilets Planned",
+  numBoyToiletsConstructed: "Num. Boy Toilets Constructed",
+
+  // -----------------------------
+  // Units / Infra (Drinking Water, Kitchen Shed, Other Infra)
+  // -----------------------------
+  numUnitsPlanned: "Num. Units Planned",
+  numUnitsExecuted: "Num. Units Executed",
+
+  // -----------------------------
+  // Boundary Wall Construction
+  // -----------------------------
+  lengthInMeters: "Length (Meters)",
+
+  // -----------------------------
+  // Repair & Renovation
+  // -----------------------------
   workDescription: "Work Description",
-  baselineData: "Baseline Data (%)",
-  outcome: "Outcome (%)",
-  noOfDeskBenchesPlanned: "No. of Desk Benches Planned",
-  noOfDeskBenchesProvided: "No. of Desk Benches Provided",
-  noOfPlaygroundsPlanned: "No. of Playgrounds Planned",
-  noOfPlaygroundsDeveloped: "No. of Playgrounds Developed",
-  noOfSchoolsCovered: "No. of Schools Covered",
-  noOfUtthanSahayaksDeployed: "No. of Utthan Sahayaks Deployed",
-  noOfUnits: "No. of Units",
-  noOfResourcePersonDeployed: "No. of Resource Persons Deployed",
-  noOfMaleYouthCovered: "No. of Male Youth Covered",
-  noOfFemaleYouthCovered: "No. of Female Youth Covered",
-  totalCandidateSelected: "Total Candidates Selected"
+
+  // -----------------------------
+  // Smart Class
+  // -----------------------------
+  // uses same: numUnitsPlanned, numUnitsExecuted, beneficiaries
+
+  // -----------------------------
+  // Seating
+  // -----------------------------
+  numDeskBenchesPlanned: "Num. Desk Benches Planned",
+  numDeskBenchesProvided: "Num. Desk Benches Provided",
+
+  // -----------------------------
+  // Playground
+  // -----------------------------
+  numPlaygroundsPlanned: "Num. Playgrounds Planned",
+  numPlaygroundsDeveloped: "Num. Playgrounds Developed",
+
+  // -----------------------------
+  // Utthan
+  // -----------------------------
+  numSchoolsCovered: "Num. Schools Covered",
+  numUtthanSahayaksDeployed: "Num. Utthan Sahayaks Deployed",
+  baselineDataPercentage: "Baseline Data (%)",
+  outcomePercentage: "Outcome (%)",
+
+  // -----------------------------
+  // Coaching Centre
+  // -----------------------------
+  numUnits: "Num. of Units",
+  numResourcePersonDeployed: "Num. Resource Person Deployed",
+  numMaleYouthCovered: "Num. Male Youth Covered",
+  numFemaleYouthCovered: "Num. Female Youth Covered",
+  totalCandidateSelectedGovOtherJobs: "Total Candidates Selected Govt/Other Jobs",
+
+  // -----------------------------
+  // Images (all forms)
+  // -----------------------------
+  preActivityImagePaths: "Pre-Activity Images",
+  postActivityImagePaths: "Post-Activity Images",
+  uploadedImages: "Uploaded Images",
+  imagePaths: "Images",
 };

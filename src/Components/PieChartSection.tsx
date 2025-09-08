@@ -1,11 +1,15 @@
 import React, { useMemo } from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
+import { readNum } from "../utils/readNum";
 
 interface PieChartSectionProps {
   data: any[];
   selectedActivity: string;
   selectedSubActivity: string;
-  mapping: Record<string, { plannedField: string; executedField: string; girlsField: string; boysField: string }>;
+  mapping: Record<
+    string,
+    { plannedField: string; executedField: string; girlsField: string; boysField: string; extraFields?: string[] }
+  >;
 }
 
 const BLUE = "#007BBD";
@@ -23,31 +27,40 @@ const CustomTooltip: React.FC<any> = ({ active, payload }) => {
   );
 };
 
-const PieChartSection: React.FC<PieChartSectionProps> = ({ data, selectedActivity, selectedSubActivity, mapping }) => {
+const PieChartSection: React.FC<PieChartSectionProps> = ({
+  data,
+  selectedActivity,
+  selectedSubActivity,
+  mapping,
+}) => {
   const { genderData, total } = useMemo(() => {
+    // if parent already filtered, this will just pass-through quickly
     const filtered = data.filter((row) => {
       const a = selectedActivity ? row.activity === selectedActivity : true;
       const s = selectedSubActivity ? row.subActivity === selectedSubActivity : true;
       return a && s;
     });
 
-    let totalGirls = 0;
-    let totalBoys = 0;
+    // choose correct mapping key: prefer subActivity if present/selected
+    const mapKey = selectedSubActivity || selectedActivity;
+    const map = mapKey ? mapping[mapKey] : undefined;
 
-    for (const row of filtered) {
-      const key = row.subActivity || row.activity;
-      const map = mapping[key];
-      if (!map) continue;
-      totalGirls += Number(row?.[map.girlsField] ?? 0);
-      totalBoys  += Number(row?.[map.boysField] ?? 0);
+    let girls = 0;
+    let boys = 0;
+
+    if (map) {
+      for (const r of filtered) {
+        girls += readNum(r, map.girlsField);
+        boys  += readNum(r, map.boysField);
+      }
     }
 
     return {
       genderData: [
-        { name: "Girls", value: totalGirls },
-        { name: "Boys",  value: totalBoys  },
+        { name: "Girls", value: girls },
+        { name: "Boys",  value: boys  },
       ],
-      total: totalGirls + totalBoys,
+      total: girls + boys,
     };
   }, [data, selectedActivity, selectedSubActivity, mapping]);
 
@@ -55,16 +68,26 @@ const PieChartSection: React.FC<PieChartSectionProps> = ({ data, selectedActivit
     if (!total) return `${entry.name}: 0%`;
     const pct = Math.round((Number(entry.value || 0) / total) * 100);
     return `${entry.name} ${pct}%`;
-    };
+  };
 
   return (
     <div className="bg-white rounded-lg shadow p-4 w-full h-full">
-      <h2 className="text-sm sm:text-base font-semibold text-[#007BBD] mb-2 text-center">Gender-wise Beneficiaries</h2>
+      <h2 className="text-sm sm:text-base font-semibold text-[#007BBD] mb-2 text-center">
+        Gender-wise Beneficiaries
+      </h2>
 
       <div className="w-full aspect-[16/9] min-h-[260px]">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
-            <Pie data={genderData} dataKey="value" nameKey="name" innerRadius="50%" outerRadius="70%" label={renderLabel} labelLine={false}>
+            <Pie
+              data={genderData}
+              dataKey="value"
+              nameKey="name"
+              innerRadius="50%"
+              outerRadius="70%"
+              label={renderLabel}
+              labelLine={false}
+            >
               {genderData.map((g) => (
                 <Cell key={g.name} fill={g.name === "Girls" ? BLUE : GREEN} />
               ))}

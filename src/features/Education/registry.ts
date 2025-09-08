@@ -1,13 +1,14 @@
 // src/features/Education/registry.ts
 import { buildQuery, type QueryValue } from "../../utils/buildQuery";
 
+export const COACHING_ACTIVITY = "Adani Competitive Coaching Centre"; // ← single source of truth
+
 export type EndpointFn = (p?: Record<string, QueryValue>) => string;
 export type EndpointSet = {
   list: EndpointFn;
-  kpis?: Record<string, EndpointFn>; // keep string index to avoid TS 'never' with unions
+  kpis?: Record<string, EndpointFn>;
 };
 
-// tiny helper to avoid repeating `${buildQuery(p)}`
 const endpoint = (path: string): EndpointFn => (p = {}) => `${path}${buildQuery(p)}`;
 
 export const EducationApiRegistry = {
@@ -145,19 +146,21 @@ export function getFormKeysForSelection(activity?: string, subActivity?: string)
       case "New Classroom Construction":     return ["schoolInfra.newClassroom"];
       case "Toilet Construction":            return ["schoolInfra.toilet"];
       case "Drinking Water Facilities":      return ["schoolInfra.drinkingWater"];
-      case "Boundary Wall Construction":     return ["schoolInfra.boundaryWall"];
+      case "School Boundary Wall Construction":     return ["schoolInfra.boundaryWall"];
       case "Kitchen Shed Construction":      return ["schoolInfra.kitchenShed"];
       case "Repair and Renovation":          return ["schoolInfra.repairRenovation"];
       case "Smart Class Development":        return ["schoolInfra.smartClass"];
       case "Seating Arrangement":            return ["schoolInfra.seating"];
       case "School Playground Development":  return ["schoolInfra.playground"];
       case "Other Infra Development":        return ["schoolInfra.otherInfra"];
-      default: return [];
+      default:
+        return [];
     }
   }
 
+  // ✅ use the constant here
+  if (activity === "Adani Coaching Competitive Centre") return ["coaching.main"];
   if (activity === "Utthan") return ["utthan.main"];
-  if (activity === "Adani Competitive Coaching Centre") return ["coaching.main"];
   return [];
 }
 
@@ -168,7 +171,7 @@ export function attachActivityNames(formKey: FormKey): { activity: string; subAc
       "schoolInfra.newClassroom":     "New Classroom Construction",
       "schoolInfra.toilet":           "Toilet Construction",
       "schoolInfra.drinkingWater":    "Drinking Water Facilities",
-      "schoolInfra.boundaryWall":     "Boundary Wall Construction",
+      "schoolInfra.boundaryWall":     "School Boundary Wall Construction",
       "schoolInfra.kitchenShed":      "Kitchen Shed Construction",
       "schoolInfra.repairRenovation": "Repair and Renovation",
       "schoolInfra.smartClass":       "Smart Class Development",
@@ -179,7 +182,9 @@ export function attachActivityNames(formKey: FormKey): { activity: string; subAc
     return { activity: "School Infrastructure", subActivity: map[formKey as SchoolInfraKey] };
   }
   if (formKey === "utthan.main")   return { activity: "Utthan", subActivity: "" };
-  if (formKey === "coaching.main") return { activity: "Adani Competitive Coaching Centre", subActivity: "" };
+
+  // ✅ use the same constant here too
+  if (formKey === "coaching.main") return { activity: "Adani Coaching Competitive Centre", subActivity: "" };
+
   return { activity: "", subActivity: "" };
 }
-

@@ -1,97 +1,109 @@
+// src/Components/BarChartSection.tsx
 import React, { useMemo } from "react";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend, LabelList, CartesianGrid } from "recharts";
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Legend,
+  CartesianGrid,
+} from "recharts";
+import { readNum } from "../utils/readNum";
+import { EducationCommonMapping } from "../Data/EducationCommonMapping";
 
-interface BarChartSectionProps {
-  data: any[];
+type Row = Record<string, any>;
+
+interface Props {
+  data: Row[];
   selectedActivity: string;
   selectedSubActivity: string;
-  mapping: Record<string, { plannedField: string; executedField: string; girlsField?: string; boysField?: string }>;
+  mapping: typeof EducationCommonMapping;
 }
 
-const BLUE = "#007BBD";
-const GREEN = "#A4C639";
 const nf = new Intl.NumberFormat("en-IN");
 
-const CustomTooltip: React.FC<any> = ({ active, payload, label }) => {
-  if (!active || !payload || payload.length === 0) return null;
-  return (
-    <div className="rounded-md bg-white shadow px-3 py-2 border text-xs">
-      <div className="font-semibold text-gray-700 mb-1">{label}</div>
-      {payload.map((p: any, i: number) => (
-        <div key={i} className="flex items-center gap-2">
-          <span className="inline-block w-2 h-2 rounded" style={{ backgroundColor: p.color }} />
-          <span className="text-gray-600">{p.name}:</span>
-          <span className="font-semibold text-gray-800">{nf.format(Number(p.value ?? 0))}</span>
-        </div>
-      ))}
-    </div>
-  );
-};
+const BarChartSection: React.FC<Props> = ({
+  data,
+  selectedSubActivity,
+  mapping,
+}) => {
+  // Which buckets to show on X
+  const buckets = useMemo(() => {
+    if (selectedSubActivity && mapping[selectedSubActivity]) {
+      return [selectedSubActivity];
+    }
+    return Object.keys(mapping);
+  }, [selectedSubActivity, mapping]);
 
-const BarChartSection: React.FC<BarChartSectionProps> = ({ data, selectedActivity, selectedSubActivity, mapping }) => {
-  const chartData = useMemo(() => {
-    const isSingle = !!selectedSubActivity;
+  // Aggregate data into buckets
+  const rows = useMemo(() => {
+    const totals: Record<string, { planned: number; executed: number }> = {};
+    for (const b of buckets) totals[b] = { planned: 0, executed: 0 };
 
-    if (isSingle) {
-      const map = mapping[selectedSubActivity];
-      if (!map) return [];
-      const total = data.reduce(
-        (acc, row) => {
-          acc.Planned += Number(row?.[map.plannedField] ?? 0);
-          acc.Executed += Number(row?.[map.executedField] ?? 0);
-          return acc;
-        },
-        { name: selectedSubActivity, Planned: 0, Executed: 0 }
-      );
-      return [total];
+    for (const r of data) {
+      const label = (r.subActivity as string) || (r.activity as string) || "";
+      if (!label || !totals[label]) continue;
+
+      const def = mapping[label];
+      if (!def) continue;
+
+      totals[label].planned += readNum(r, def.plannedField);
+      totals[label].executed += readNum(r, def.executedField);
     }
 
-    const groups: Record<string, { Planned: number; Executed: number }> = {};
-    data.forEach((row) => {
-      const key = row.subActivity || row.activity;
-      const map = mapping[key];
-      if (!map) return;
-      if (!groups[key]) groups[key] = { Planned: 0, Executed: 0 };
-      groups[key].Planned += Number(row?.[map.plannedField] ?? 0);
-      groups[key].Executed += Number(row?.[map.executedField] ?? 0);
-    });
+    return buckets.map((label) => ({
+      name: label,
+      Planned: totals[label]?.planned ?? 0,
+      Executed: totals[label]?.executed ?? 0,
+    }));
+  }, [data, buckets, mapping]);
 
-    return Object.entries(groups).map(([name, v]) => ({ name, ...v }));
-  }, [data, mapping, selectedSubActivity]);
+  const yMax = useMemo(() => {
+    let m = 0;
+    for (const r of rows) {
+      m = Math.max(m, r.Planned, r.Executed);
+    }
+    return Math.ceil(m * 1.1); // 10% headroom
+  }, [rows]);
 
   return (
-    <div className="w-full h-full">
-      <div className="flex items-center justify-between mb-2">
-        <h2 className="text-sm sm:text-base font-semibold text-[#007BBD]">Planned vs Executed</h2>
-        {selectedActivity && !selectedSubActivity && (
-          <span className="text-[11px] text-gray-500">By sub-activity of “{selectedActivity}”</span>
-        )}
-      </div>
+    <div className="bg-white rounded-lg shadow p-4">
+      <h3 className="text-sm font-semibold text-[#007BBD] mb-2">
+        Planned vs Executed
+      </h3>
 
-      <div className="w-full aspect-[16/9] min-h-[260px]">
+      <div className="w-full aspect-[16/9] min-h-[280px]">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={chartData} barCategoryGap="28%" barSize={26}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+          <BarChart
+            data={rows}
+            margin={{ top: 30, right: 30, left: 10, bottom: 60 }} // space for legend + rotated labels
+          >
+            <CartesianGrid strokeDasharray="3 3" />
             <XAxis
               dataKey="name"
-              tick={{ fontSize: 11, fill: "#6b7280" }}
-              tickMargin={8}
-              tickLine={false}
-              minTickGap={0}
-              angle={-24}
-              interval={0}
-              height={75}
+              interval={0}           // show ALL categories
+              angle={-35}            // rotate so long names fit
               textAnchor="end"
+              height={70}            // room for rotated labels
+              tick={{ fontSize: 11 }}
             />
-            <YAxis tickFormatter={(v) => nf.format(Number(v))} tick={{ fontSize: 11, fill: "#6b7280" }} width={44} />
-            <Tooltip content={<CustomTooltip />} />
-            <Legend wrapperStyle={{ fontSize: 12 }} verticalAlign="top" align="right" iconType="circle" />
-            <Bar dataKey="Planned" name="Planned" fill={BLUE} radius={[8, 8, 0, 0]}>
-              <LabelList dataKey="Planned" position="top" formatter={(label) => nf.format(Number(label ?? 0))} className="text-[10px]" />
-            </Bar>
-            <Bar dataKey="Executed" name="Executed" fill={GREEN} radius={[8, 8, 0, 0]}>
-              <LabelList dataKey="Executed" position="top" formatter={(label) => nf.format(Number(label ?? 0))} className="text-[10px]" />
-            </Bar>
+            <YAxis
+              domain={[0, yMax]}
+              tickFormatter={(v) => nf.format(v as number)}
+            />
+            <Tooltip
+              formatter={(v: any) => nf.format(Number(v))}
+              labelFormatter={(l) => String(l)}
+            />
+            <Legend
+              verticalAlign="top"
+              align="right"
+              wrapperStyle={{ fontSize: 12 }}
+            />
+            <Bar dataKey="Planned" fill="#1E88E5" />
+            <Bar dataKey="Executed" fill="#8BC34A" />
           </BarChart>
         </ResponsiveContainer>
       </div>

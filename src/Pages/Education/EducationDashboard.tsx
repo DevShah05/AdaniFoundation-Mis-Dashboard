@@ -12,18 +12,16 @@ import DataTable from "../../Components/DataTable";
 
 import { EducationCommonMapping } from "../../Data/EducationCommonMapping";
 import { educationFieldLabelMap } from "../../Data/EducationFieldLabelMap";
-
-
 import { useEducationRecords } from "../../features/Education/hooks";
+import { readNum } from "../../utils/readNum";
 
 type Row = Record<string, any>;
 
 const EducationDashboard: React.FC = () => {
-  const [selectedSite, setSelectedSite] = useState<string>("");
-  const [selectedActivity, setSelectedActivity] = useState<string>("");
-  const [selectedSubActivity, setSelectedSubActivity] = useState<string>("");
+  const [selectedSite, setSelectedSite] = useState("");
+  const [selectedActivity, setSelectedActivity] = useState("");
+  const [selectedSubActivity, setSelectedSubActivity] = useState("");
 
-  // Live data from APIs (combined across the selected form(s))
   const { records, loading, error } = useEducationRecords({
     site: selectedSite || undefined,
     activity: selectedActivity || undefined,
@@ -32,43 +30,43 @@ const EducationDashboard: React.FC = () => {
 
   const filteredData: Row[] = useMemo(() => records ?? [], [records]);
 
-  // Completion % (Planned vs Executed)
+  // Completion %
   const key = selectedSubActivity || selectedActivity;
   const map = EducationCommonMapping[key as keyof typeof EducationCommonMapping];
 
-  const totalPlanned = filteredData.reduce(
-    (s: number, r: Row) => s + (map ? Number(r?.[map.plannedField] ?? 0) : 0),
-    0
+  const totalPlanned = useMemo(
+    () => (map ? filteredData.reduce((s, r) => s + readNum(r, map.plannedField), 0) : 0),
+    [filteredData, map]
   );
-  const totalExecuted = filteredData.reduce(
-    (s: number, r: Row) => s + (map ? Number(r?.[map.executedField] ?? 0) : 0),
-    0
+  const totalExecuted = useMemo(
+    () => (map ? filteredData.reduce((s, r) => s + readNum(r, map.executedField), 0) : 0),
+    [filteredData, map]
   );
   const completion = totalPlanned > 0 ? Math.round((totalExecuted / totalPlanned) * 100) : 0;
 
-  // Images
+  // Images (use API field names)
   const sliderImages = useMemo(() => {
     const urls: string[] = [];
     for (const r of filteredData) {
-      (r.preActivityImages || []).forEach((u: string) => urls.push(u));
-      (r.postActivityImages || []).forEach((u: string) => urls.push(u));
-      (r.uploadedImages || []).forEach((u: string) => urls.push(u));
+      const pushAll = (arr?: unknown) => {
+        if (Array.isArray(arr)) arr.forEach((u) => u && urls.push(String(u)));
+      };
+      pushAll((r as any).preActivityImagePaths);
+      pushAll((r as any).postActivityImagePaths);
+      pushAll((r as any).imagePaths);
+      pushAll((r as any).uploadedImages);
     }
     return urls;
   }, [filteredData]);
 
-  // Dynamic columns using your label map
-  const dynamicKeys = useMemo(
-    () =>
-      Array.from(
-        new Set(
-          filteredData.flatMap((r: Row) =>
-            Object.keys(r).filter((k) => educationFieldLabelMap[k])
-          )
-        )
-      ),
-    [filteredData]
-  );
+  // Dynamic columns (fast + exclude timestamps)
+  const sample: Row = filteredData[0] ?? {};
+  const dynamicKeys = useMemo(() => {
+    const EXCLUDE = new Set(["timestamp", "createdAt", "modifiedAt", "updatedAt"]);
+    return Object.keys(sample).filter(
+      (k) => !EXCLUDE.has(k) && educationFieldLabelMap[k]
+    );
+  }, [sample]);
 
   const columns = useMemo(
     () => [
@@ -83,9 +81,9 @@ const EducationDashboard: React.FC = () => {
 
   const tableData = useMemo(
     () =>
-      filteredData.map((r: Row) => ({
+      filteredData.map((r) => ({
         ...r,
-        timestamp: r.timestamp ? new Date(r.timestamp).toLocaleString() : "-",
+        timestamp: r.timestamp ? new Date(r.timestamp).toLocaleString("en-IN") : "-",
       })),
     [filteredData]
   );
@@ -93,7 +91,6 @@ const EducationDashboard: React.FC = () => {
   return (
     <div className="bg-[#F7F9FC] text-gray-800">
       <Header title="Education" icon={<FaGraduationCap />} />
-
       <div className="p-4 sm:p-6 space-y-6 max-w-screen-xl mx-auto">
         <Filters
           selectedSite={selectedSite}
@@ -105,22 +102,16 @@ const EducationDashboard: React.FC = () => {
           }}
           selectedSubActivity={selectedSubActivity}
           setSelectedSubActivity={setSelectedSubActivity}
-          data={filteredData}
+          data={records ?? []} // keep ALL records for options
         />
 
-        {/* Loading/Error banners */}
-        {loading && (
-          <div className="bg-white rounded-lg shadow p-3 text-sm text-gray-600">
-            Loading data…
-          </div>
-        )}
+        {loading && <div className="bg-white rounded-lg shadow p-3 text-sm text-gray-600">Loading data…</div>}
         {Boolean(error) && (
           <div className="bg-white rounded-lg shadow p-3 text-sm text-red-600">
             Failed to load data: {String((error as any)?.message ?? error)}
           </div>
         )}
 
-        {/* Charts */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <BarChartSection
             data={filteredData}
@@ -136,7 +127,6 @@ const EducationDashboard: React.FC = () => {
           />
         </div>
 
-        {/* Gauge + Images */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="bg-white rounded-lg shadow p-4">
             <h3 className="text-sm font-semibold text-[#007BBD] mb-2">Completion %</h3>
@@ -145,7 +135,6 @@ const EducationDashboard: React.FC = () => {
           <ImageSlider title="Activity Images" images={sliderImages} />
         </div>
 
-        {/* KPIs + Table */}
         <KPICards
           data={filteredData}
           selectedActivity={selectedActivity}

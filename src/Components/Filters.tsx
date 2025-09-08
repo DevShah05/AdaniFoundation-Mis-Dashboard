@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useEffect } from "react";
 
 interface FiltersProps {
   selectedSite: string;
@@ -7,9 +7,16 @@ interface FiltersProps {
   setSelectedActivity: (activity: string) => void;
   selectedSubActivity: string;
   setSelectedSubActivity: (subActivity: string) => void;
+  /** IMPORTANT: pass ALL records here (not filteredData) */
   data: any[];
   className?: string;
 }
+
+const norm = (v: unknown) =>
+  v == null ? "" : String(v).trim();
+
+const sortAlpha = (a: string, b: string) =>
+  a.localeCompare(b, undefined, { sensitivity: "base" });
 
 const Filters: React.FC<FiltersProps> = ({
   selectedSite,
@@ -21,37 +28,55 @@ const Filters: React.FC<FiltersProps> = ({
   data,
   className = "",
 }) => {
-  const siteOptions = useMemo(
-    () =>
-      Array.from(new Set(data.map((d) => (d.site != null ? String(d.site) : ""))))
-        .filter(Boolean)
-        .sort((a, b) => String(a).localeCompare(String(b))),
-    [data]
-  );
+  const siteOptions = useMemo(() => {
+    const s = new Set<string>();
+    for (const d of data) {
+      const v = norm(d.site);
+      if (v) s.add(v);
+    }
+    return Array.from(s).sort(sortAlpha);
+  }, [data]);
 
-  const activityOptions = useMemo(
-    () =>
-      Array.from(new Set(data.map((d) => (d.activity != null ? String(d.activity) : ""))))
-        .filter(Boolean)
-        .sort((a, b) => String(a).localeCompare(String(b))),
-    [data]
-  );
+  const activityOptions = useMemo(() => {
+    const s = new Set<string>();
+    for (const d of data) {
+      const v = norm(d.activity);
+      if (v) s.add(v);
+    }
+    return Array.from(s).sort(sortAlpha);
+  }, [data]);
 
   const subActivityOptions = useMemo(() => {
     if (!selectedActivity) return [];
-    return Array.from(
-      new Set(
-        data
-          .filter(
-            (d) =>
-              d.activity === selectedActivity &&
-              d.subActivity !== undefined &&
-              d.subActivity !== ""
-          )
-          .map((d) => String(d.subActivity))
-      )
-    ).sort((a, b) => a.localeCompare(b));
+    const s = new Set<string>();
+    for (const d of data) {
+      if (norm(d.activity) === norm(selectedActivity)) {
+        const v = norm(d.subActivity);
+        if (v) s.add(v);
+      }
+    }
+    return Array.from(s).sort(sortAlpha);
   }, [data, selectedActivity]);
+
+  // 🔒 If current selections are not in the options anymore, reset them gracefully
+  useEffect(() => {
+    if (selectedSite && !siteOptions.includes(selectedSite)) {
+      setSelectedSite("");
+    }
+  }, [selectedSite, siteOptions, setSelectedSite]);
+
+  useEffect(() => {
+    if (selectedActivity && !activityOptions.includes(selectedActivity)) {
+      setSelectedActivity("");
+      setSelectedSubActivity("");
+    }
+  }, [selectedActivity, activityOptions, setSelectedActivity, setSelectedSubActivity]);
+
+  useEffect(() => {
+    if (selectedSubActivity && !subActivityOptions.includes(selectedSubActivity)) {
+      setSelectedSubActivity("");
+    }
+  }, [selectedSubActivity, subActivityOptions, setSelectedSubActivity]);
 
   const resetAll = () => {
     setSelectedSite("");
@@ -130,5 +155,3 @@ const Filters: React.FC<FiltersProps> = ({
 };
 
 export default Filters;
-
-
